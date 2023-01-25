@@ -6,7 +6,7 @@ This is a boilerplate git repository for creating new ayon addons.
 Default base of addon is `__init__.py` file in root of repository which define addon for server. Most of addons have settings that's why `settings.py` is by default structure. Settings can be changed to folder/module when more than one file is needed. Root by default contains `create_package.py` which is a helper script that prepares package structure for server. The script may be modified or expanded by needs of addon (e.g. when frontend needs to be build first).
 
 ### Client content
-Addons that have code for desktop client application should create subfolder `client` where a client content is located. It is expected the directory has only one file or folder in it which is named the way how should be imported on a client side (e.g. `openpype_core`).
+Addons that have code for desktop client application should create subfolder `client` where a client content is located. It is expected the directory has only one file or folder in it which is named the way how should be imported on a client side (e.g. `ayon_core`).
 
 ### Server frontend
 Addons may have their frontend. By default, server looks into `~/frontend/dist` for `index.html` and addon have to have specified scopes where the frontend should be showed (check documentation of `frontend_scopes` on server addon implementation for more information).

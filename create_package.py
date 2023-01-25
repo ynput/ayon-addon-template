@@ -5,13 +5,13 @@ Requires Python 3.9. (Or at least 3.8+).
 This script should be called from cloned addon repo.
 
 It will produce 'package' subdirectory which could be pasted into server
-addon directory directly (eg. into `openpype4-backend/addons`).
+addon directory directly (eg. into `ayon-backend/addons`).
 
 Format of package folder:
 ADDON_REPO/package/{addon name}/{addon version}
 
 You can specify `--output_dir` in arguments to change output directory where
-package will be created. Existing package directory will be always purged if
+package will be created. Existing package directory will always be purged if
 already present! This could be used to create package directly in server folder
 if available.
 
@@ -162,7 +162,7 @@ def zip_client_side(addon_package_dir, current_dir, log):
 
     Args:
         addon_package_dir (str): Output package directory path.
-        current_dir (str): Directoy path of addon source.
+        current_dir (str): Directory path of addon source.
         log (logging.Logger): Logger object.
     """
 
