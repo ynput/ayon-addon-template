@@ -174,36 +174,13 @@ def zip_client_side(addon_package_dir, current_dir, log):
     log.info("Preparing client code zip")
     private_dir = os.path.join(addon_package_dir, "private")
 
-    temp_dir_to_zip = os.path.join(private_dir, "temp")
-    for path, sub_path in find_files_in_subdir(client_dir):
-        safe_copy_file(path, os.path.join(temp_dir_to_zip, sub_path))
+    if not os.path.exists(private_dir):
+        os.makedirs(private_dir)
 
-    toml_path = os.path.join(client_dir, "pyproject.toml")
-    if os.path.exists(toml_path):
-        shutil.copy(toml_path, private_dir)
-
-    zip_filename = "client.zip"
-    temp_dir_to_zip_s = temp_dir_to_zip.replace("\\", "/")
-    zip_filepath = os.path.join(os.path.join(private_dir, zip_filename))
+    zip_filepath = os.path.join(os.path.join(private_dir, "client.zip"))
     with zipfile.ZipFile(zip_filepath, "w", zipfile.ZIP_DEFLATED) as zipf:
-        for root, dirnames, filenames in os.walk(temp_dir_to_zip):
-            root_s = root.replace("\\", "/")
-            zip_root = root_s.replace(temp_dir_to_zip_s, "").strip("/")
-            for name in sorted(dirnames):
-                path = os.path.normpath(os.path.join(root, name))
-                zip_path = name
-                if zip_root:
-                    zip_path = "/".join((zip_root, name))
-                zipf.write(path, zip_path)
-
-            for name in filenames:
-                path = os.path.normpath(os.path.join(root, name))
-                zip_path = name
-                if zip_root:
-                    zip_path = "/".join((zip_root, name))
-                if os.path.isfile(path):
-                    zipf.write(path, zip_path)
-    shutil.rmtree(temp_dir_to_zip)
+        for path, sub_path in find_files_in_subdir(client_dir):
+            zipf.write(path, sub_path)
 
 
 def main(output_dir=None):
