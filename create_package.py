@@ -28,17 +28,12 @@ import logging
 import collections
 import zipfile
 
+# Name of addon
+#   - e.g. 'maya'
 ADDON_NAME = ""
-
-# Files or directories that won't be copied to server part of addon
-SERVER_ADDON_SUBPATHS = {
-    "private",
-    "public",
-    "services",
-    "settings",
-    "__init__.py",
-    "version.py",
-}
+# Name of folder where client code is located to copy 'version.py'
+#   - e.g. 'ayon_maya'
+ADDON_CLIENT_DIR = ""
 
 # Patterns of directories to be skipped for server part of addon
 IGNORE_DIR_PATTERNS = [
@@ -139,18 +134,17 @@ def copy_server_content(addon_output_dir, current_dir, log):
     log.info("Copying server content")
 
     filepaths_to_copy = []
-    for filename in SERVER_ADDON_SUBPATHS:
-        src_path = os.path.join(current_dir, filename)
-        dst_path = os.path.join(addon_output_dir, filename)
-        if os.path.isfile(src_path):
-            if not _value_match_regexes(filename, IGNORE_FILE_PATTERNS):
-                filepaths_to_copy.append((src_path, dst_path))
-            continue
+    server_dirpath = os.path.join(current_dir, "server")
 
-        for path, sub_path in find_files_in_subdir(src_path):
-            filepaths_to_copy.append(
-                (path, os.path.join(dst_path, sub_path))
-            )
+    # Version
+    src_version_path = os.path.join(current_dir, "version.py")
+    dst_version_path = os.path.join(addon_output_dir, "version.py")
+    filepaths_to_copy.append((src_version_path, dst_version_path))
+
+    for item in find_files_in_subdir(server_dirpath):
+        src_path, dst_subpath = item
+        dst_path = os.path.join(addon_output_dir, dst_subpath)
+        filepaths_to_copy.append((src_path, dst_path))
 
     # Copy files
     for src_path, dst_path in filepaths_to_copy:
@@ -177,10 +171,17 @@ def zip_client_side(addon_package_dir, current_dir, log):
     if not os.path.exists(private_dir):
         os.makedirs(private_dir)
 
+    src_version_path = os.path.join(current_dir, "version.py")
+    dst_version_path = os.path.join(ADDON_CLIENT_DIR, "version.py")
+
     zip_filepath = os.path.join(os.path.join(private_dir, "client.zip"))
     with zipfile.ZipFile(zip_filepath, "w", zipfile.ZIP_DEFLATED) as zipf:
+        # Add client code content to zip
         for path, sub_path in find_files_in_subdir(client_dir):
             zipf.write(path, sub_path)
+
+        # Add 'version.py' to client code
+        zipf.write(src_version_path, dst_version_path)
 
 
 def main(output_dir=None):
