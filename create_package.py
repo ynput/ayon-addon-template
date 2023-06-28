@@ -82,10 +82,10 @@ def safe_copy_file(src_path, dst_path):
 
 
 def _value_match_regexes(value, regexes):
-    for regex in regexes:
-        if regex.search(value):
-            return True
-    return False
+    return any(
+        regex.search(value)
+        for regex in regexes
+    )
 
 
 def find_files_in_subdir(
