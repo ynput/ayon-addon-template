@@ -286,8 +286,8 @@ def create_server_package(
 
 def main(
     output_dir: Optional[str]=None,
-    skip_zip: bool=False,
-    keep_sources: bool=False
+    skip_zip: Optional[bool]=False,
+    keep_sources: Optional[bool]=False
 ):
     log: logging.Logger = logging.getLogger("create_package")
     log.info("Start creating package")
