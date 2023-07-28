@@ -359,6 +359,16 @@ if __name__ == "__main__":
             " (Will be purged if already exists!)"
         )
     )
+    parser.add_argument(
+        "--debug",
+        dest="debug",
+        action="store_true",
+        help="Debug log messages."
+    )
 
     args = parser.parse_args(sys.argv[1:])
+    level = logging.INFO
+    if args.debug:
+        level = logging.DEBUG
+    logging.basicConfig(level=level)
     main(args.output_dir, args.skip_zip, args.keep_sources)
