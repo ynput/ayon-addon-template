@@ -24,15 +24,15 @@ client side code zipped in `private` subfolder.
 import os
 import sys
 import re
+import io
 import shutil
-import json
 import platform
 import argparse
 import logging
 import collections
 import zipfile
-import io
-from typing import Any, Optional, Iterable, Pattern, Union, List, Tuple
+import subprocess
+from typing import Optional, Iterable, Pattern, Union, List, Tuple
 
 import package
 
@@ -98,6 +98,24 @@ class ZipFileLongPaths(zipfile.ZipFile):
                 tpath = "\\\\?\\" + tpath
 
         return super()._extract_member(member, tpath, pwd)
+
+
+def _get_yarn_executable() -> Union[str, None]:
+    cmd = "which"
+    if platform.system().lower() == "windows":
+        cmd = "where"
+
+    for line in subprocess.check_output(
+        [cmd, "yarn"], encoding="utf-8"
+    ).splitlines():
+        if not line or not os.path.exists(line):
+            continue
+        try:
+            subprocess.call([line, "--version"])
+            return line
+        except OSError:
+            continue
+    return None
 
 
 def safe_copy_file(src_path: str, dst_path: str):
@@ -196,6 +214,20 @@ def update_client_version(logger):
     logger.info("Updating client version")
     with open(version_path, "w") as stream:
         stream.write(VERSION_PY_CONTENT)
+
+
+def build_frontend():
+    yarn_executable = _get_yarn_executable()
+    if yarn_executable is None:
+        raise RuntimeError("Yarn executable was not found.")
+
+    dist_path = os.path.join(FRONTEND_DIR, "dist")
+    subprocess.run([yarn_executable, "install"], cwd=FRONTEND_DIR)
+    subprocess.run([yarn_executable, "build"], cwd=FRONTEND_DIR)
+    if not os.path.exists(dist_path):
+        raise RuntimeError(
+            "Frontend build failed. Did not find 'dist' folder."
+        )
 
 
 def get_client_files_mapping() -> List[Tuple[str, str]]:
@@ -366,7 +398,7 @@ def main(
     if has_client_code:
         client_dir: str = os.path.join(CLIENT_DIR, ADDON_CLIENT_DIR)
         if not os.path.exists(client_dir):
-            raise ValueError(
+            raise RuntimeError(
                 f"Client directory was not found '{client_dir}'."
                 " Please check 'client_dir' in 'package.py'."
             )
@@ -374,12 +406,15 @@ def main(
 
     if only_client:
         if not has_client_code:
-            raise ValueError("Client code is not available. Skipping")
+            raise RuntimeError("Client code is not available. Skipping")
 
         copy_client_code(output_dir, log)
         return
 
     log.info(f"Preparing package for {ADDON_NAME}-{ADDON_VERSION}")
+
+    if os.path.exists(FRONTEND_DIR):
+        build_frontend()
 
     files_mapping: List[FileMapping] = []
     files_mapping.extend(get_base_files_mapping())
