@@ -363,8 +363,8 @@ def main(
         output_dir = os.path.join(CURRENT_DIR, "package")
 
     has_client_code = bool(ADDON_CLIENT_DIR)
-    client_dir: str = os.path.join(CLIENT_DIR, ADDON_CLIENT_DIR)
     if has_client_code:
+        client_dir: str = os.path.join(CLIENT_DIR, ADDON_CLIENT_DIR)
         if not os.path.exists(client_dir):
             raise ValueError(
                 f"Client directory was not found '{client_dir}'."
