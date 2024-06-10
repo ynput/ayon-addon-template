@@ -41,14 +41,14 @@ ADDON_NAME: str = package.name
 ADDON_VERSION: str = package.version
 ADDON_CLIENT_DIR: Union[str, None] = getattr(package, "client_dir", None)
 
-CURRENT_DIR: str = os.path.dirname(os.path.abspath(__file__))
-SERVER_DIR: str = os.path.join(CURRENT_DIR, "server")
-FRONTEND_DIR: str = os.path.join(CURRENT_DIR, "frontend")
-FRONTEND_DIST_DIR: str = os.path.join(FRONTEND_DIR, "dist")
+CURRENT_ROOT: str = os.path.dirname(os.path.abspath(__file__))
+SERVER_ROOT: str = os.path.join(CURRENT_ROOT, "server")
+FRONTEND_ROOT: str = os.path.join(CURRENT_ROOT, "frontend")
+FRONTEND_DIST_ROOT: str = os.path.join(FRONTEND_ROOT, "dist")
 DST_DIST_DIR: str = os.path.join("frontend", "dist")
-PRIVATE_DIR: str = os.path.join(CURRENT_DIR, "private")
-PUBLIC_DIR: str = os.path.join(CURRENT_DIR, "public")
-CLIENT_DIR: str = os.path.join(CURRENT_DIR, "client")
+PRIVATE_ROOT: str = os.path.join(CURRENT_ROOT, "private")
+PUBLIC_ROOT: str = os.path.join(CURRENT_ROOT, "public")
+CLIENT_ROOT: str = os.path.join(CURRENT_ROOT, "client")
 
 VERSION_PY_CONTENT = f'''# -*- coding: utf-8 -*-
 """Package declaring AYON addon '{ADDON_NAME}' version."""
@@ -207,7 +207,7 @@ def update_client_version(logger):
         return
 
     version_path: str = os.path.join(
-        CLIENT_DIR, ADDON_CLIENT_DIR, "version.py"
+        CLIENT_ROOT, ADDON_CLIENT_DIR, "version.py"
     )
     if not os.path.exists(version_path):
         logger.debug("Did not find version.py in client directory")
@@ -223,9 +223,9 @@ def build_frontend():
     if yarn_executable is None:
         raise RuntimeError("Yarn executable was not found.")
 
-    subprocess.run([yarn_executable, "install"], cwd=FRONTEND_DIR)
-    subprocess.run([yarn_executable, "build"], cwd=FRONTEND_DIR)
-    if not os.path.exists(FRONTEND_DIST_DIR):
+    subprocess.run([yarn_executable, "install"], cwd=FRONTEND_ROOT)
+    subprocess.run([yarn_executable, "build"], cwd=FRONTEND_ROOT)
+    if not os.path.exists(FRONTEND_DIST_ROOT):
         raise RuntimeError(
             "Frontend build failed. Did not find 'dist' folder."
         )
@@ -252,7 +252,7 @@ def get_client_files_mapping() -> List[Tuple[str, str]]:
     """
 
     # Add client code content to zip
-    client_code_dir: str = os.path.join(CLIENT_DIR, ADDON_CLIENT_DIR)
+    client_code_dir: str = os.path.join(CLIENT_ROOT, ADDON_CLIENT_DIR)
 
     return [
         (path, os.path.join(ADDON_CLIENT_DIR, sub_path))
@@ -274,7 +274,7 @@ def get_client_zip_content(log) -> io.BytesIO:
 def get_base_files_mapping() -> List[FileMapping]:
     filepaths_to_copy: List[FileMapping] = []
     # Go through server, private and public directories and find all files
-    for dirpath in (SERVER_DIR, PRIVATE_DIR, PUBLIC_DIR):
+    for dirpath in (SERVER_ROOT, PRIVATE_ROOT, PUBLIC_ROOT):
         if not os.path.exists(dirpath):
             continue
 
@@ -283,12 +283,12 @@ def get_base_files_mapping() -> List[FileMapping]:
             dst_subpath = os.path.join(dirname, subpath)
             filepaths_to_copy.append((src_file, dst_subpath))
 
-    if os.path.exists(FRONTEND_DIST_DIR):
-        for src_file, subpath in find_files_in_subdir(FRONTEND_DIST_DIR):
+    if os.path.exists(FRONTEND_DIST_ROOT):
+        for src_file, subpath in find_files_in_subdir(FRONTEND_DIST_ROOT):
             dst_subpath = os.path.join(DST_DIST_DIR, subpath)
             filepaths_to_copy.append((src_file, dst_subpath))
 
-    pyproject_toml = os.path.join(CLIENT_DIR, "pyproject.toml")
+    pyproject_toml = os.path.join(CLIENT_ROOT, "pyproject.toml")
     if os.path.exists(pyproject_toml):
         filepaths_to_copy.append(
             (pyproject_toml, "private/pyproject.toml")
@@ -391,11 +391,11 @@ def main(
     log.info("Package creation started")
 
     if not output_dir:
-        output_dir = os.path.join(CURRENT_DIR, "package")
+        output_dir = os.path.join(CURRENT_ROOT, "package")
 
     has_client_code = bool(ADDON_CLIENT_DIR)
     if has_client_code:
-        client_dir: str = os.path.join(CLIENT_DIR, ADDON_CLIENT_DIR)
+        client_dir: str = os.path.join(CLIENT_ROOT, ADDON_CLIENT_DIR)
         if not os.path.exists(client_dir):
             raise RuntimeError(
                 f"Client directory was not found '{client_dir}'."
@@ -412,7 +412,7 @@ def main(
 
     log.info(f"Preparing package for {ADDON_NAME}-{ADDON_VERSION}")
 
-    if os.path.exists(FRONTEND_DIR):
+    if os.path.exists(FRONTEND_ROOT):
         build_frontend()
 
     files_mapping: List[FileMapping] = []
