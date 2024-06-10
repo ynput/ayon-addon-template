@@ -37,13 +37,14 @@ Addons that have code for desktop client application should create subfolder `cl
 │ └─ kittens.png
 │
 ├─ client
-│ └─ ayon_core
-│   ├─ pipeline
-│   ├─ lib
-│   └─ ...
+│ ├─ ayon_core
+│ │ ├─ pipeline
+│ │ ├─ lib
+│ │ └─ ...
+│ └─ pyproject.toml
 │
 ├─ create_package.py
-├─ README.md
 ├─ LICENSE
-└─ package.py
+├─ package.py
+└─ README.md
 ```
