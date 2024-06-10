@@ -39,9 +39,7 @@ import package
 FileMapping = Tuple[Union[str, io.BytesIO], str]
 ADDON_NAME: str = package.name
 ADDON_VERSION: str = package.version
-ADDON_CLIENT_DIR: Union[str, None] = None
-if hasattr(package, "client_dir"):
-    ADDON_CLIENT_DIR = package.client_dir
+ADDON_CLIENT_DIR: Union[str, None] = getattr(package, "client_dir", None)
 
 CURRENT_DIR: str = os.path.dirname(os.path.abspath(__file__))
 SERVER_DIR: str = os.path.join(CURRENT_DIR, "server")
