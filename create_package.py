@@ -279,14 +279,14 @@ def get_base_files_mapping() -> List[FileMapping]:
         if not os.path.exists(dirpath):
             continue
 
-        dirname = os.path.dirname(dirpath)
+        dirname = os.path.basename(dirpath)
         for src_file, subpath in find_files_in_subdir(dirpath):
             dst_subpath = os.path.join(dirname, subpath)
             filepaths_to_copy.append((src_file, dst_subpath))
 
     frontend_dist_dirpath: str = os.path.join(FRONTEND_DIR, "dist")
     if os.path.exists(frontend_dist_dirpath):
-        dirname = os.path.join(os.path.dirname(FRONTEND_DIR), "dist")
+        dirname = os.path.join(os.path.basename(FRONTEND_DIR), "dist")
         for src_file, subpath in find_files_in_subdir(dirpath):
             dst_subpath = os.path.join(dirname, subpath)
             filepaths_to_copy.append((src_file, dst_subpath))
