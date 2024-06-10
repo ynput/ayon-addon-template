@@ -46,6 +46,8 @@ if hasattr(package, "client_dir"):
 CURRENT_DIR: str = os.path.dirname(os.path.abspath(__file__))
 SERVER_DIR: str = os.path.join(CURRENT_DIR, "server")
 FRONTEND_DIR: str = os.path.join(CURRENT_DIR, "frontend")
+FRONTEND_DIST_DIR: str = os.path.join(FRONTEND_DIR, "dist")
+DST_DIST_DIR: str = os.path.join("frontend", "dist")
 PRIVATE_DIR: str = os.path.join(CURRENT_DIR, "private")
 PUBLIC_DIR: str = os.path.join(CURRENT_DIR, "public")
 CLIENT_DIR: str = os.path.join(CURRENT_DIR, "client")
@@ -223,10 +225,9 @@ def build_frontend():
     if yarn_executable is None:
         raise RuntimeError("Yarn executable was not found.")
 
-    dist_path = os.path.join(FRONTEND_DIR, "dist")
     subprocess.run([yarn_executable, "install"], cwd=FRONTEND_DIR)
     subprocess.run([yarn_executable, "build"], cwd=FRONTEND_DIR)
-    if not os.path.exists(dist_path):
+    if not os.path.exists(FRONTEND_DIST_DIR):
         raise RuntimeError(
             "Frontend build failed. Did not find 'dist' folder."
         )
@@ -284,11 +285,9 @@ def get_base_files_mapping() -> List[FileMapping]:
             dst_subpath = os.path.join(dirname, subpath)
             filepaths_to_copy.append((src_file, dst_subpath))
 
-    frontend_dist_dirpath: str = os.path.join(FRONTEND_DIR, "dist")
-    if os.path.exists(frontend_dist_dirpath):
-        dirname = os.path.join(os.path.basename(FRONTEND_DIR), "dist")
-        for src_file, subpath in find_files_in_subdir(dirpath):
-            dst_subpath = os.path.join(dirname, subpath)
+    if os.path.exists(FRONTEND_DIST_DIR):
+        for src_file, subpath in find_files_in_subdir(FRONTEND_DIST_DIR):
+            dst_subpath = os.path.join(DST_DIST_DIR, subpath)
             filepaths_to_copy.append((src_file, dst_subpath))
 
     pyproject_toml = os.path.join(CLIENT_DIR, "pyproject.toml")
