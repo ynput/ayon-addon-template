@@ -176,6 +176,8 @@ def find_files_in_subdir(
     if ignore_dir_patterns is None:
         ignore_dir_patterns = IGNORE_DIR_PATTERNS
     output: List[Tuple[str, str]] = []
+    if not os.path.exists(src_path):
+        return output
 
     hierarchy_queue: collections.deque = collections.deque()
     hierarchy_queue.append((src_path, []))
