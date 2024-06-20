@@ -272,7 +272,12 @@ def get_client_zip_content(log) -> io.BytesIO:
 
 
 def get_base_files_mapping() -> List[FileMapping]:
-    filepaths_to_copy: List[FileMapping] = []
+    filepaths_to_copy: List[FileMapping] = [
+        (
+            os.path.join(CURRENT_ROOT, "package.py"),
+            "package.py"
+        )
+    ]
     # Go through server, private and public directories and find all files
     for dirpath in (SERVER_ROOT, PRIVATE_ROOT, PUBLIC_ROOT):
         if not os.path.exists(dirpath):
