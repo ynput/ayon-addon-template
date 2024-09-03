@@ -1,6 +1,11 @@
-name = "ayon-addon-template"
-title = "Ayon-Addon-Template"
-version = "0.1.0"
+# Required: lower case addon name e.g. 'deadline', otherwise addon will be invalid
+name = ""
+
+# Optional: Addon title shown in UI, 'name' is used by default e.g. 'Deadline'
+title = ""
+
+# Required: Valid semantic version (https://semver.org/), default (0.0.0) is invalid but neccessary for develop branch to start from
+version = "0.0.0"
 
 # Name of client code directory imported in AYON launcher
 # - do not specify if there is no client code
