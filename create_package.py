@@ -275,6 +275,11 @@ def get_base_files_mapping() -> List[FileMapping]:
             "package.py"
         )
     ]
+    # Add license file to package if exists
+    license_path = os.path.join(CURRENT_ROOT, "LICENSE")
+    if os.path.exists(license_path):
+        filepaths_to_copy.append((license_path, "LICENSE"))
+
     # Go through server, private and public directories and find all files
     for dirpath in (SERVER_ROOT, PRIVATE_ROOT, PUBLIC_ROOT):
         if not os.path.exists(dirpath):
