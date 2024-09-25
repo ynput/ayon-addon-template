@@ -246,15 +246,19 @@ def get_client_files_mapping() -> List[Tuple[str, str]]:
     Returns:
         list[tuple[str, str]]: List of path mappings to copy. The destination
             path is relative to expected output directory.
-    """
 
+    """
     # Add client code content to zip
     client_code_dir: str = os.path.join(CLIENT_ROOT, ADDON_CLIENT_DIR)
-
-    return [
+    mapping = [
         (path, os.path.join(ADDON_CLIENT_DIR, sub_path))
         for path, sub_path in find_files_in_subdir(client_code_dir)
     ]
+
+    license_path = os.path.join(CURRENT_ROOT, "LICENSE")
+    if os.path.exists(license_path):
+        mapping.append((license_path, f"{ADDON_CLIENT_DIR}/LICENSE"))
+    return mapping
 
 
 def get_client_zip_content(log) -> io.BytesIO:
