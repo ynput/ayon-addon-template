@@ -1,4 +1,5 @@
-# Required: lower case addon name e.g. 'deadline', otherwise addon will be invalid
+# Required: lower case addon name e.g. 'deadline', otherwise addon
+#   will be invalid
 name = ""
 
 # Optional: Addon title shown in UI, 'name' is used by default e.g. 'Deadline'
