@@ -207,8 +207,7 @@ def update_client_version(logger):
         CLIENT_ROOT, ADDON_CLIENT_DIR, "version.py"
     )
     if not os.path.exists(version_path):
-        logger.debug("Did not find version.py in client directory")
-        return
+        logger.debug("Creating version.py in client directory")
 
     logger.info("Updating client version")
     with open(version_path, "w") as stream:
