@@ -159,6 +159,16 @@ run_codespell () {
   uv run codespell
 }
 
+build_docs () {
+  echo -e "${BIGreen}>>>${RST} Building documentation ..."
+  uv run mkdocs build
+}
+
+serve_docs () {
+  echo -e "${BIGreen}>>>${RST} Serving documentation ..."
+  uv run mkdocs serve
+}
+
 main () {
   detect_python || return 1
 
@@ -193,6 +203,19 @@ main () {
       ;;
     "runtests")
       run_tests "$@" || return_code=$?
+      exit $return_code
+      ;;
+    "builddocs")
+      build_docs || return_code=$?
+      exit $return_code
+      ;;
+
+    "servedocs")
+      serve_docs || return_code=$?
+      exit $return_code
+      ;;
+    "clearcache")
+      clean_pyc || return_code=$?
       exit $return_code
       ;;
   esac
