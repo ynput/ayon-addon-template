@@ -65,6 +65,24 @@ detect_python () {
   fi
 }
 
+##############################################################################
+# Clean pyc files in specified directory
+# Globals:
+#   None
+# Arguments:
+#   Optional path to clean
+# Returns:
+#   None
+###############################################################################
+clean_pyc () {
+  local path
+  path=$repo_root
+  echo -e "${BIGreen}>>>${RST} Cleaning pyc at [ ${BIWhite}$path${RST} ] ... \c"
+  find "$path" -path ./build -o -regex '^.*\(__pycache__\|\.py[co]\)$' -delete
+
+  echo -e "${BIGreen}DONE${RST}"
+}
+
 install_uv () {
   echo -e "${BIGreen}>>>${RST} Installing uv ..."
   command -v curl >/dev/null 2>&1 || { echo -e "${BIRed}!!!${RST}${BIYellow} Missing ${RST}${BIBlue}curl${BIYellow} command.${RST}"; return 1; }
@@ -143,7 +161,7 @@ default_help() {
   echo -e "  ${BWhite}codespell${RST}       ${BCyan}Run codespell check for the repository${RST}"
   echo -e "  ${BWhite}build-docs${RST}      ${BCyan}Build documentation using mkdocs${RST}"
   echo -e "  ${BWhite}serve-docs${RST}      ${BCyan}Serve documentation using mkdocs${RST}"
-  echo -e "  ${BWhite}clear-cache${RST}      ${BCyan}Clear Python cache files${RST}"
+  echo -e "  ${BWhite}clear-cache${RST}     ${BCyan}Clear Python cache files${RST}"
   echo -e "  ${BWhite}run${RST}             ${BCyan}Run a command in the virtual environment${RST}"
   echo -e "  ${BWhite}run-tests${RST}       ${BCyan}Run tests in the virtual environment${RST}"
   echo ""
