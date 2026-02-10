@@ -141,6 +141,11 @@ default_help() {
   echo -e "  ${BWhite}ruff-check${RST}      ${BCyan}Run Ruff check for the repository${RST}"
   echo -e "  ${BWhite}ruff-fix${RST}        ${BCyan}Run Ruff fix for the repository${RST}"
   echo -e "  ${BWhite}codespell${RST}       ${BCyan}Run codespell check for the repository${RST}"
+  echo -e "  ${BWhite}build-docs${RST}      ${BCyan}Build documentation using mkdocs${RST}"
+  echo -e "  ${BWhite}serve-docs${RST}      ${BCyan}Serve documentation using mkdocs${RST}"
+  echo -e "  ${BWhite}clear-cache${RST}      ${BCyan}Clear Python cache files${RST}"
+  echo -e "  ${BWhite}run${RST}             ${BCyan}Run a command in the virtual environment${RST}"
+  echo -e "  ${BWhite}run-tests${RST}       ${BCyan}Run tests in the virtual environment${RST}"
   echo ""
 }
 
