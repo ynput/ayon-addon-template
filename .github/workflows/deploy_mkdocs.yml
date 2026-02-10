@@ -4,8 +4,6 @@ on:
   push:
     tags:
       - "*"
-    branches:
-      - "enhancement/add-docs-infrastructure"
   workflow_dispatch:
 
 jobs:
