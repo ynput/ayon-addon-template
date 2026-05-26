@@ -80,7 +80,26 @@ function Write-Info {
         [switch] $NoNewLine
     )
     if (Test-CommandExists "Write-Color") {
-        Write-Color -Text $Text -Color $Color -BackGroundColor $BackGroundColor -StartTab $StartTab -LinesBefore $LinesBefore -LinesAfter $LinesAfter -StartSpaces $StartSpaces -LogFile $LogFile -DateTimeFormat $DateTimeFormat -LogTime $LogTime -LogRetry $LogRetry -Encoding $Encoding -ShowTime $ShowTime -NoNewLine $NoNewLine
+        $params = @{
+            Text             = $Text
+            Color            = $Color
+            BackGroundColor  = $BackGroundColor
+            StartTab         = $StartTab
+            LinesBefore      = $LinesBefore
+            LinesAfter       = $LinesAfter
+            StartSpaces      = $StartSpaces
+            LogFile          = $LogFile
+            DateTimeFormat   = $DateTimeFormat
+            LogTime          = $LogTime
+            LogRetry         = $LogRetry
+            Encoding         = $Encoding
+            NoNewLine        = $NoNewLine
+        }
+        if ($NoNewLine) {
+            $params.NoNewLine = $true
+        }
+
+        Write-Color @params
     } else {
         $message = $Text -join ' '
         if ($NoNewLine)
@@ -136,34 +155,49 @@ function Restore-Cwd() {
     }
 }
 
-function Create-UvEnv {
-    Change-Cwd
+function Deploy-UvEnv {
+    Set-Cwd
     Write-Color -Text ">>> ", "Test if UV is installed ... " -Color Green, Gray -NoNewline
     if (Get-Command "uv" -ErrorAction SilentlyContinue)
     {
         Write-Color -Text "OK" -Color Green
-    } else {
-        if (Test-Path -PathType Leaf -Path "$($USERPROFILE)/.cargo/bin/uv") {
-            $env:PATH += ";$($env:USERPROFILE)/.cargo/bin"
+    } else
+    {
+        if (Test-Path -PathType Leaf -Path "$( $USERPROFILE )/.cargo/bin/uv")
+        {
+            $env:PATH += ";$( $env:USERPROFILE )/.cargo/bin"
             Write-Color -Text "OK" -Color Green
-        } else {
+        }
+        else
+        {
             Write-Color -Text "NOT FOUND" -Color Yellow
             Install-Uv
             Write-Color -Text "INSTALLED" -Color Cyan
         }
     }
-    $python_arg = ""
     $startTime = [int][double]::Parse((Get-Date -UFormat %s))
 
     # note that uv venv can use .python-version marker file to determine what python version to use
     # so you can safely use pyenv to manage python versions
     Write-Color -Text ">>> ", "Creating and activating venv ... " -Color Green, Gray
     uv venv --allow-existing .venv
-    Write-Color -Text ">>> ", "Compiling dependencies ... " -Color Green, Gray
-    uv pip compile pyproject.toml windows-requirements.in -o requirements.txt
-    Write-Color -Text ">>> ", "Installing dependencies ... " -Color Green, Gray
-    uv pip install -r requirements.txt
-    Install-PrecommitHook
+    if (Test-Path -PathType Leaf -Path "$($RepoRoot)/requirements.txt") {
+        Write-Color -Text ">>> ", "Syncing dependencies ... " -Color Green, Gray
+        & uv sync
+    } else {
+        Write-Color -Text ">>> ", "Compiling dependencies ... " -Color Green, Gray
+        $compile_args = @("pip", "compile", "pyproject.toml")
+        # add windows specific dependencies inly if .in file exists
+        if (Test-Path -PathType Leaf -Path "$($RepoRoot)/windows-requirements.in") {
+            $compile_args += @("windows-requirements.in")
+        }
+        # output to requirements.txt
+        $compile_args += @("-o", "requirements.txt")
+        & uv @compile_args
+        Write-Color -Text ">>> ", "Installing dependencies ... " -Color Green, Gray
+        uv pip install -r requirements.txt
+    }
+    & uv run pre-commit install
     $endTime = [int][double]::Parse((Get-Date -UFormat %s))
     Restore-Cwd
     try
@@ -195,13 +229,13 @@ function Invoke-Codespell {
     & uv $CodespellArgs
 }
 
-function Run-Tests {
+function Start-Tests {
     $RunArgs = @( "run", "pytest", "$($RepoRoot)/tests")
 
     & uv $RunArgs @arguments
 }
 
-function Clean-Cache {
+function Clear-Cache {
     Write-Info -Text ">>> ", "Cleaning cache files ... " -Color Green, Gray -NoNewline
     Get-ChildItem $repo_root -Filter "*.pyc" -Force -Recurse | Remove-Item -Force
     Get-ChildItem $repo_root -Filter "*.pyo" -Force -Recurse | Remove-Item -Force
@@ -210,14 +244,14 @@ function Clean-Cache {
 }
 
 function Build-Docs {
-    Clean-Cache
+    Clear-Cache
     $RunArgs = @( "run", "mkdocs", "build")
 
     & uv $RunArgs @arguments
 }
 
-function Serve-Docs {
-    Clean-Cache
+function Start-ServingDocs {
+    Clear-Cache
     $RunArgs = @( "run", "mkdocs", "serve")
 
     & uv $RunArgs @arguments
@@ -231,13 +265,18 @@ function Write-Help {
     Write-Host ""
     Write-Host "AYON Addon management script"
     Write-Host ""
+    Write-Info -Text "Repository: ", "$($RepoRoot)" -Color Gray, Cyan
     Write-Info -Text "Usage: ", "./manage.ps1 ", "[command]" -Color Gray, White, Cyan
     Write-Host ""
     Write-Host "Commands:"
+
     Write-Info -Text "  create-env                    ", "Install uv and update venv by lock file" -Color White, Cyan
     Write-Info -Text "  ruff-check                    ", "Run Ruff check for the repository" -Color White, Cyan
     Write-Info -Text "  ruff-fix                      ", "Run Ruff fix for the repository" -Color White, Cyan
     Write-Info -Text "  codespell                     ", "Run codespell check for the repository" -Color White, Cyan
+    Write-Info -Text "  build-docs                    ", "Build documentation" -Color White, Cyan
+    Write-Info -Text "  serve-docs                    ", "Serve documentation locally" -Color White, Cyan
+    Write-Info -Text "  clear-cache                   ", "Clear Python cache" -Color White, Cyan
     Write-Host ""
 }
 
@@ -249,7 +288,7 @@ function Resolve-Function {
     $FunctionName = $FunctionName.ToLower() -replace "\W"
     if ($FunctionName -eq "createenv") {
         Set-Cwd
-        Initialize-Environment
+        Deploy-UvEnv
     } elseif ($FunctionName -eq "ruffcheck") {
         Set-Cwd
         Invoke-Ruff
@@ -261,10 +300,19 @@ function Resolve-Function {
         Invoke-CodeSpell
     } elseif ($FunctionName -eq "run") {
         Set-Cwd
-        Run-From-Code
+        & uv run python start.py @arguments
     } elseif ($FunctionName -eq "runtests") {
         Set-Cwd
-        Run-Tests
+        Start-Tests
+    } elseif ($FunctionName -eq "builddocs") {
+        Set-Cwd
+        Build-Docs
+    } elseif ($FunctionName -eq "servedocs") {
+        Set-Cwd
+        Start-ServingDocs
+    } elseif ($FunctionName -eq "clearcache") {
+        Set-Cwd
+        Clear-Cache
     } else {
         Write-Host "Unknown function ""$FunctionName"""
         Write-Help

@@ -21,7 +21,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v46
+        with:
+          files: |
+            **.py
       - uses: astral-sh/ruff-action@v3
         with:
-          changed-files: "true"
           version-file: "pyproject.toml"
+          src: ${{ steps.changed-files.outputs.all_changed_files }}
