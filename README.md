@@ -24,8 +24,9 @@ You need Python 3.9+, Node.js 20.19+ or 22.12+, and Yarn 1 (Classic).
 4. Build the package: `python create_package.py` (from the repository root). It writes the
    version into the frontend, builds it, and creates `package/my_addon-<version>.zip`.
 5. In AYON, go to **Studio settings > Bundles**, click **Install addons** and upload the zip.
-   When the installation is done, restart the server. Then add the addon to your production
-   bundle (or a new one) and reload the page. The **My Addon** tab is on the dashboard.
+   When the installation is done, restart the server. Then choose **Duplicate and Edit** on the
+   production bundle, select the uploaded `my_addon` version, save the new bundle, choose
+   **Set Production** and reload the page. The **My Addon** tab is on the dashboard.
 6. After you change the server's endpoints, install that version and run `yarn generate-rest` in
    `frontend/`. It regenerates `src/api/generated/` from the server's OpenAPI schema.
 
