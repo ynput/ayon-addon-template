@@ -25,6 +25,7 @@ from __future__ import annotations
 import argparse
 import collections
 import io
+import json
 import logging
 import os
 import platform
@@ -215,6 +216,25 @@ def update_client_version(addon_client_dir: str, log: logging.Logger) -> None:
 
     log.info("Updating client version")
     Path(version_path).write_text(VERSION_PY_CONTENT, encoding="utf-8")
+
+
+def update_frontend_version(log: logging.Logger) -> None:
+    """Write the package version into the frontend.
+
+    Its endpoints call /api/addons/{name}/{version}/... with the version
+    in frontend/src/addonVersion.ts.
+    """
+    log.info("Updating frontend version")
+    Path(FRONTEND_ROOT, "src", "addonVersion.ts").write_text(
+        f'export default "{ADDON_VERSION}";\n', encoding="utf-8"
+    )
+
+    package_json = Path(FRONTEND_ROOT, "package.json")
+    data = json.loads(package_json.read_text(encoding="utf-8"))
+    data["version"] = ADDON_VERSION
+    package_json.write_text(
+        json.dumps(data, indent=2) + "\n", encoding="utf-8"
+    )
 
 
 def build_frontend() -> None:
@@ -488,6 +508,7 @@ def main(
     log.info("Preparing package for %s, %s", ADDON_NAME, ADDON_VERSION)
 
     if os.path.exists(FRONTEND_ROOT):
+        update_frontend_version(log)
         build_frontend()
 
     files_mapping: list[FileMapping] = []
