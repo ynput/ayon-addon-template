@@ -10,9 +10,12 @@ items, table columns) in `frontend/src/manifest.ts`.
 
 ## Quick start
 
+You need Python 3.9+, Node.js 20.19+ or 22.12+, and Yarn 1 (Classic).
+
 1. Click **Use this template** on GitHub, or clone this repository.
 2. Rename the addon: search and replace across the repository, matching case:
-   `my_addon` → your addon's name (lower case, e.g. `budget`), `myAddon` and `MyAddon` → the same
+   `my_addon` → your addon's name (a lower case letter, then lower case letters, digits and `_`,
+   e.g. `budget_tools`; no `-`), `myAddon` and `MyAddon` → the same
    name in camelCase and PascalCase, `My Addon` → its title. Then rename the two `my_addon.ts`
    files in `frontend/src/api/`. The name must be the same in `package.py` (`name`),
    `server/__init__.py` (the `frontend_modules` key) and `frontend/vite.config.ts`
@@ -20,8 +23,9 @@ items, table columns) in `frontend/src/manifest.ts`.
 3. Install the frontend's packages: `cd frontend && yarn install`.
 4. Build the package: `python create_package.py` (from the repository root). It writes the
    version into the frontend, builds it, and creates `package/my_addon-<version>.zip`.
-5. Upload the zip in AYON (**Studio settings > Bundles > Install addons**), add the addon to a
-   bundle and restart the server. The **My Addon** tab is on the dashboard.
+5. In AYON, go to **Studio settings > Bundles**, click **Install addons** and upload the zip.
+   When the installation is done, restart the server. Then add the addon to your production
+   bundle (or a new one) and reload the page. The **My Addon** tab is on the dashboard.
 6. After you change the server's endpoints, install that version and run `yarn generate-rest` in
    `frontend/`. It regenerates `src/api/generated/` from the server's OpenAPI schema.
 

@@ -1,6 +1,6 @@
 """Server package."""
 
-from typing import Type
+from typing import Type, cast
 
 from ayon_server.addons import BaseServerAddon
 from ayon_server.api.dependencies import CurrentUser
@@ -46,6 +46,5 @@ class MyAddon(BaseServerAddon):
             HelloModel: The message the studio page shows.
 
         """
-        settings = await self.get_studio_settings()
-        greeting = getattr(settings, "greeting", "Hello")
-        return HelloModel(message=f"{greeting}, {user.name}!")
+        settings = cast("MySettings", await self.get_studio_settings())
+        return HelloModel(message=f"{settings.greeting}, {user.name}!")

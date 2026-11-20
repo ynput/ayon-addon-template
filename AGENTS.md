@@ -27,8 +27,9 @@ In `frontend/`:
 ## Names that must match
 
 The addon name (`my_addon` in the template) is in `package.py` (`name`), `server/__init__.py`
-(the `frontend_modules` key) and `frontend/vite.config.ts` (`ayonAddon({ name })`).
-`yarn ayon-addon check` reports a mismatch.
+(the `frontend_modules` key) and `frontend/vite.config.ts` (`ayonAddon({ name })`). Nothing
+checks that they match: compare the three yourself after a rename. The name is a lower case
+letter, then lower case letters, digits and `_`.
 
 ## Server endpoints
 
