@@ -1,0 +1,11 @@
+node_modules
+dist
+*.local
+*.log
+*.tsbuildinfo
+# AYON_SERVER_URL / AYON_API_KEY for the ayon-addon CLI (it writes .env on its first run)
+.env
+# module federation build cache
+.mf
+# yarn generate-rest: the downloaded schema
+gen/openapi.json

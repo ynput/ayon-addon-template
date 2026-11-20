@@ -1,12 +1,13 @@
 # Required: lower case addon name e.g. 'deadline', otherwise addon
-#   will be invalid
-name = ""
+#   will be invalid. Rename `my_addon` here, in server/__init__.py
+#   (frontend_modules) and in frontend/vite.config.ts (ayonAddon name).
+name = "my_addon"
 
 # Optional: Addon title shown in UI, 'name' is used by default e.g. 'Deadline'
-title = ""
+title = "My Addon"
 
 # Required: Valid semantic version (https://semver.org/)
-version = "0.0.0"
+version = "0.1.0-dev"
 
 # Name of client code directory imported in AYON launcher
 # - do not specify if there is no client code
